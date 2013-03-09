@@ -37,12 +37,12 @@ namespace PicToAscii
             set { colour = value; }
         }
 
-        private Point outSize;
+        private int scale;
 
-        public Point OutSize
+        public int Scale
         {
-            get { return outSize; }
-            set { outSize = value; }
+            get { return scale; }
+            set { scale = value; }
         }
 
         //MN#$@QHKER&Bk%DW68F9gh50ZXUOAdPGpS2IJbLmfVq4TCYny3u[l*]xw7avs{}ej|r1+z?/o()=tci\\<>!_\"-~^;,':`.
@@ -54,7 +54,7 @@ namespace PicToAscii
             Bmp = bmp;
             Precision = 1;
             Colour = true;
-            OutSize = new Point(Bmp.Width,Bmp.Height);
+            Scale = 1;
         }
 
         public void writeTxt(string txt)
@@ -140,32 +140,22 @@ namespace PicToAscii
 
         public void writePic(string pic)
         {
-            // StreamWriter sw = new StreamWriter(pic);
-            float ProWidth=OutSize.X/Bmp.Width;
-            float ProHeight = OutSize.Y / Bmp.Height;
-            int stepW = Precision;
-            int stepH = stepW;           
-
-            Bitmap tmpBmp = new Bitmap(OutSize.X, OutSize.Y);
-            Graphics og = Graphics.FromImage(tmpBmp);
-            og.Clear(Color.White);
-            og.ScaleTransform(1/ProWidth,1/ProHeight);
-            og.DrawImage(Bmp,0,0);
-            og.Dispose();
-            Bitmap newBmp = new Bitmap(OutSize.X, OutSize.Y);
+            int stepW = Precision ;
+            int stepH = stepW;
+            Bitmap newBmp = new Bitmap(Bmp.Width * Scale, Bmp.Height * Scale);
             Graphics g = Graphics.FromImage(newBmp);
             g.Clear(Color.White);
-            Font font = new Font(FontFamily.GenericSansSerif, stepW);
-            for (int i = 1; i + stepH <= OutSize.X; i += stepH)
+            Font font = new Font(FontFamily.GenericSansSerif, stepW * Scale);
+            for (int i = 1; i + stepH <= Bmp.Height; i += stepH)
             {
-                for (int j = 1; j + stepW <= OutSize.Y; j += stepW)
+                for (int j = 1; j + stepW <= Bmp.Width; j += stepW)
                 {
-                    conCol = getColor(tmpBmp,j, i, stepW, stepH);
+                    conCol = getColor(Bmp,j, i, stepW, stepH);
                     int index = (int)((characters.Length - 1) * conCol.GetBrightness());
-                    g.DrawString(characters.ElementAt(index) + "", font, new SolidBrush(conCol), j , i );
+                    g.DrawString(characters.ElementAt(index) + "", font, new SolidBrush(conCol), j * Scale, i * Scale);
                 }
             }
-            newBmp.Save(pic, ImageFormat.Bmp);
+            newBmp.Save(pic);
         }
 
         private Color getColor(Bitmap bitmap,int x, int y, int w, int h)

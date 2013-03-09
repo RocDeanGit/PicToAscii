@@ -28,10 +28,14 @@ namespace PicToAscii
             {
                 converter = new Converter(new Bitmap(ofd.FileName));
                 PicSizeLabel.Text = "Picture Size : " + converter.Bmp.Width
-                    + "X" + converter.Bmp.Height;
-                OutSizeX.Value = converter.Bmp.Width;
-                OutSizeY.Value = converter.Bmp.Height;             
+                    + "X" + converter.Bmp.Height;     
                 pictureView.Image = converter.Bmp;
+                if (converter.Bmp.Width > pictureView.Width  ||
+                    converter.Bmp.Height > pictureView.Height)
+                {
+                    pictureView.SizeMode = PictureBoxSizeMode.Zoom;
+                }
+                else { pictureView.SizeMode = PictureBoxSizeMode.CenterImage; }
             }
         }
 
@@ -40,8 +44,8 @@ namespace PicToAscii
             SaveFileDialog sfd=new SaveFileDialog();
             if (ToBmp.Checked)
             {
-                converter.Precision = (int)precision2.Value;
-                converter.OutSize = new Point((int)OutSizeX.Value,(int)OutSizeY.Value);
+                converter.Precision = (int)precision1.Value;
+                converter.Scale = (int)scaleUpDown.Value;
                 sfd.Filter="bmp文件|*.bmp";
                 if(sfd.ShowDialog()==DialogResult.OK) converter.writePic(sfd.FileName);
             }else {
@@ -57,6 +61,22 @@ namespace PicToAscii
                     if (sfd.ShowDialog() == DialogResult.OK) converter.writeHtml(sfd.FileName);
                 }
             }
+        }
+
+        private void ToBmp_CheckedChanged(object sender, EventArgs e)
+        {
+            if (ToBmp.Checked) OutSizeGroup.Visible = true;
+            else OutSizeGroup.Visible = false;
+        }
+
+        private void pictureView_SizeChanged(object sender, EventArgs e)
+        {
+            if (converter.Bmp.Width > pictureView.Width ||
+                    converter.Bmp.Height > pictureView.Height)
+            {
+                pictureView.SizeMode = PictureBoxSizeMode.Zoom;
+            }
+            else { pictureView.SizeMode = PictureBoxSizeMode.CenterImage; }
         }
     }
 }
